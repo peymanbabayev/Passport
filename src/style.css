@@ -1,0 +1,52 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.app {
+    text-align: center;
+    padding: 5px;
+}
+
+.container {
+    display: flex;
+    margin: 30px;
+    align-items: center;
+    justify-content: center;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 5px auto;
+    font-size: 1rem;
+}
+
+.create-button {
+    padding: 10px 15px 10px 15px;
+    font-size: 1em;
+}
+
+.person-data {
+    width: auto;
+    height: auto;
+    background-color: rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    font-size: 1.5rem;
+}
+
+.delete-button {
+    margin: 10px;
+    padding: 6px;
+    font-size: 1rem;
+    border-radius: 8px;
+
+}
+
+span {
+    font-weight: bold;
+    margin: 5px;
+}

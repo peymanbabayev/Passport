@@ -1,23 +1,49 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import PassportCreator from "./components/PassportCreator";
+import PassportList from "./components/PassportList"
 
 function App() {
+
+  const [personinfo, setPersoninfo] = useState([]);
+
+  const editPersonById = (id, newName, newSurname) => {
+    const updatedInfo = personinfo.map((person) => {
+      if (person.id === id) {
+        return { ...person, name: newName, surname: newSurname };
+      }
+      return person;
+    });
+    setPersoninfo(updatedInfo)
+  }
+
+  const deletePerson = (id) => {
+    const updatedInfo = personinfo.filter((person) => {
+      return person.id !== id;
+    });
+    setPersoninfo(updatedInfo)
+  }
+
+  const createInfo = (name, surname, fathername, birthdate, cins) => {
+    const updatedInfo = [
+      ...personinfo,
+      {
+        id: Math.round(Math.random() * 9999),
+        name,
+        surname,
+        fathername,
+        birthdate,
+        cins
+      }
+    ];
+    setPersoninfo(updatedInfo)
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <PassportCreator onCreate={createInfo} />
+      <div>
+        <PassportList onEdit={editPersonById} personinfo={personinfo} onDelete={deletePerson} />
+      </div>
     </div>
   );
 }
