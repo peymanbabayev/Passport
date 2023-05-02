@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PassportEdit from './PassportEdit';
 
-function PassportShow({ person, onDelete,onEdit }) {
+function PassportShow({ person, onDelete, onEdit }) {
     const [showEdit, setShowEdit] = useState(false);
 
     const handleDeleteClick = () => {
@@ -11,50 +11,67 @@ function PassportShow({ person, onDelete,onEdit }) {
         setShowEdit(!showEdit)
     }
 
-    const handleSubmit =()=>{
-        setShowEdit(false)
-    }
-    let content = <p>{person.name}</p>
-    let surname = <p>{person.surname}</p>
-    let fathername = <p>{person.fathername}</p>
-    if (showEdit) {
-        content = <PassportEdit onSubmit={handleSubmit} onEdit={onEdit} person={person} />
-        surname = <PassportEdit onSubmit={handleSubmit} onEdit={onEdit} person={person} />
-        fathername = <PassportEdit onSubmit={handleSubmit} onEdit={onEdit} person={person} />
-    }
-
     return (
-        <div className="person-data">
-            <div>
-                <span>Ad:</span>
-                {content}
-            </div>
-            <div>
-                <span>Soyad:</span>
-                {/* {person.surname} */}
-                {surname}
-            </div>
-            <div>
-                <span>Ata adı:</span>
-                {fathername}
-            </div>
-            <div>
-                <span>Doğum tarixi:</span>
-                {person.birthdate}
-            </div>
-            <div>
-                <span>Cins:</span>
-                {person.cins}
-            </div>
-            <div>
-                <button className="delete-button" onClick={handleEditClick}>
-                Edit
-                </button>
-                <button className="delete-button" onClick={handleDeleteClick}>
-                    Delete
-                </button>
-            </div>
-        </div>
+        <>
+            {showEdit ?
+
+                <div className="data-container">
+                    <PassportEdit onEdit={onEdit} person={person} setShowEdit={setShowEdit} />
+                </div>
+                :
+
+                <div className="list-container">
+
+                    <div className="image">
+                        <img
+                            alt="books"
+                            src={`https://picsum.photos/seed/${person.id}/200/150`}
+                        />
+                    </div>
+
+
+                    <div className="data-container">
+
+                        <div className="data-box">
+                            <label>Ad:</label>
+                            <p>{person.name}</p>
+                        </div>
+
+                        <div className="data-box">
+                            <label>Soyad:</label>
+                            <p>{person.surname}</p>
+                        </div>
+
+                        <div className="data-box">
+                            <label>Ata adı:</label>
+                            <p>{person.fathername}</p>
+                        </div>
+
+                        <div className="data-box">
+                            <label>Doğum tarixi:</label>
+                            <p>{person.birthdate}</p>
+                        </div>
+
+                        <div className="data-box">
+                            <label>Cins:</label>
+                            <p>{person.cins}</p>
+                        </div>
+
+                    </div>
+
+
+                    <div className="edit-delete">
+                        <button className="edit-button" onClick={handleEditClick}>
+                            Edit
+                        </button>
+                        <button className="delete-button" onClick={handleDeleteClick}>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            }
+        </>
+
     )
 }
 

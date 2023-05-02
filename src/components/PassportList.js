@@ -1,6 +1,6 @@
 import PassportShow from './PassportShow';
 
-function PassportList({ personinfo, onDelete,onEdit }) {
+function PassportList({ personinfo, onDelete, onEdit }) {
 
     const renderedInfo = personinfo.map((person) => {
         return <PassportShow onEdit={onEdit} onDelete={onDelete} key={person.id} person={person} />
@@ -8,7 +8,7 @@ function PassportList({ personinfo, onDelete,onEdit }) {
 
     console.log(personinfo)
     return (
-        <div>
+        <div className="lists">
             {renderedInfo}
         </div>
     )
