@@ -1,78 +1,116 @@
-import { useState } from "react";
-import PassportEdit from './PassportEdit';
+import { useState } from 'react';
+import PropTypes from 'prop-types';
 
-function PassportShow({ person, onDelete, onEdit }) {
-    const [showEdit, setShowEdit] = useState(false);
+import PassportForm from './PassportForm';
+import { GENDER_OPTIONS } from '../constants/person';
 
-    const handleDeleteClick = () => {
-        onDelete(person.id);
+const genderLabel = (value) =>
+  GENDER_OPTIONS.find((option) => option.value === value)?.label ?? value ?? '—';
+
+function PassportShow({ person, onEdit, onDelete }) {
+  const [editing, setEditing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [actionError, setActionError] = useState(null);
+
+  const handleEdit = async (data) => {
+    await onEdit(person.id, data);
+    setEditing(false);
+  };
+
+  const handleDelete = async () => {
+    const fullName = `${person.name} ${person.surname}`.trim();
+    if (!window.confirm(`${fullName} silinsin?`)) return;
+
+    setDeleting(true);
+    setActionError(null);
+    try {
+      await onDelete(person.id);
+    } catch (err) {
+      setActionError('Silmək mümkün olmadı.');
+      setDeleting(false);
     }
-    const handleEditClick = () => {
-        setShowEdit(!showEdit)
-    }
+  };
 
+  if (editing) {
     return (
-        <>
-            {showEdit ?
+      <li className="list-container list-container--editing">
+        <PassportForm
+          initialValues={person}
+          submitLabel="Yadda saxla"
+          onSubmit={handleEdit}
+          onCancel={() => setEditing(false)}
+        />
+      </li>
+    );
+  }
 
-                <div className="data-container">
-                    <PassportEdit onEdit={onEdit} person={person} setShowEdit={setShowEdit} />
-                </div>
-                :
+  const rows = [
+    ['Ad', person.name],
+    ['Soyad', person.surname],
+    ['Ata adı', person.fathername],
+    ['Doğum tarixi', person.birthdate],
+    ['Cins', genderLabel(person.gender)],
+  ];
 
-                <div className="list-container">
+  return (
+    <li className="list-container">
+      <div className="image">
+        <img
+          alt={`${person.name} ${person.surname} üçün avatar`}
+          src={`https://picsum.photos/seed/${encodeURIComponent(person.id)}/200/150`}
+          width={200}
+          height={150}
+          loading="lazy"
+        />
+      </div>
 
-                    <div className="image">
-                        <img
-                            alt="books"
-                            src={`https://picsum.photos/seed/${person.id}/200/150`}
-                        />
-                    </div>
+      <dl className="data-container">
+        {rows.map(([label, value]) => (
+          <div className="data-box" key={label}>
+            <dt>{label}:</dt>
+            <dd>{value || '—'}</dd>
+          </div>
+        ))}
+      </dl>
 
+      <div className="edit-delete">
+        <button
+          className="button is-small is-warning"
+          type="button"
+          onClick={() => setEditing(true)}
+        >
+          Redaktə et
+        </button>
+        <button
+          className="button is-small is-danger"
+          type="button"
+          onClick={handleDelete}
+          disabled={deleting}
+        >
+          {deleting ? 'Silinir…' : 'Sil'}
+        </button>
+      </div>
 
-                    <div className="data-container">
-
-                        <div className="data-box">
-                            <label>Ad:</label>
-                            <p>{person.name}</p>
-                        </div>
-
-                        <div className="data-box">
-                            <label>Soyad:</label>
-                            <p>{person.surname}</p>
-                        </div>
-
-                        <div className="data-box">
-                            <label>Ata adı:</label>
-                            <p>{person.fathername}</p>
-                        </div>
-
-                        <div className="data-box">
-                            <label>Doğum tarixi:</label>
-                            <p>{person.birthdate}</p>
-                        </div>
-
-                        <div className="data-box">
-                            <label>Cins:</label>
-                            <p>{person.cins}</p>
-                        </div>
-
-                    </div>
-
-
-                    <div className="edit-delete">
-                        <button className="edit-button" onClick={handleEditClick}>
-                            Edit
-                        </button>
-                        <button className="delete-button" onClick={handleDeleteClick}>
-                            Delete
-                        </button>
-                    </div>
-                </div>
-            }
-        </>
-
-    )
+      {actionError && (
+        <p className="notification is-danger is-light" role="alert">
+          {actionError}
+        </p>
+      )}
+    </li>
+  );
 }
+
+PassportShow.propTypes = {
+  person: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string,
+    surname: PropTypes.string,
+    fathername: PropTypes.string,
+    birthdate: PropTypes.string,
+    gender: PropTypes.string,
+  }).isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+};
 
 export default PassportShow;

@@ -1,134 +1,124 @@
+.app {
+  padding-top: 20px;
+  padding-bottom: 40px;
+}
+
+/* --- Yaratma / redaktə forması --- */
+
 .passport {
-    margin-top: 15px;
-    padding: 15px;
+  margin-top: 15px;
+  padding: 15px;
 }
 
-.passport .field-group {
-    display: flex;
-    margin-bottom: 0px;
-    flex-wrap: wrap;
-    margin-top: 10px;
+.passport-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px 20px;
+  align-items: start;
 }
 
-.passport form {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+.passport-form .field {
+  margin-bottom: 0;
 }
 
-.passport .field {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0px;
-    margin-right: 10px;
+.passport-form .select,
+.passport-form .select select {
+  width: 100%;
 }
 
-.passport .field label.label {
-    margin-bottom: 0px;
-    margin-right: 10px;
-    width: 60px;
+.field-error {
+  margin-top: 4px;
+  color: #c0392b;
+  font-size: 0.85rem;
 }
 
-.passport input {
-    width: 100%;
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
 }
 
-.passport h4.subtitle.is-3 {
-    margin-bottom: 0.75rem;
-}
+/* --- Axtarış --- */
 
 .list-header {
-    margin-bottom: 20px;
+  margin: 24px 0 12px;
 }
 
 .search .label {
-    margin-right: 15px;
+  margin-right: 15px;
 }
 
+/* --- Siyahı --- */
+
 .lists {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 10px 0;
+  list-style: none;
+  margin: 0;
 }
 
 .list-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-    width: 550px;
-    height: max-content;
-    margin: 10px;
-    background: rgb(252, 247, 240);
-
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 550px;
+  max-width: 100%;
+  padding: 10px;
+  background: rgb(252, 247, 240);
+  border-radius: 6px;
 }
 
-.image {
-    margin: 10px;
+.list-container--editing {
+  display: block;
+}
 
+.image img {
+  display: block;
+  border-radius: 4px;
+}
+
+.data-container {
+  margin: 0;
 }
 
 .data-box {
-    display: flex;
-    align-items: center;
-    font-size: 1.1rem;
+  display: flex;
+  gap: 8px;
+  font-size: 1.05rem;
 }
 
-.data-box label {
-    margin-right: 8px;
-    font-weight: bold;
+.data-box dt {
+  font-weight: bold;
 }
 
-.data-box p {
-    text-transform: capitalize;
+.data-box dd {
+  margin: 0;
+  text-transform: capitalize;
 }
 
 .edit-delete {
-    position: absolute;
-    top: 0;
-    right: 5px;
-
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 8px;
 }
 
-.edit-button {
-    padding: 3px 15px 3px 15px;
-    font-size: 13px;
-    background-color: rgba(183, 214, 69, 0.986);
-    border: 1px solid black;
-    border-radius: 15px;
-    margin: 10px;
-}
+@media (max-width: 618px) {
+  .list-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-.edit-button,
-.delete-button:hover {
-    cursor: pointer;
-}
-
-.delete-button {
-    padding: 3px 15px 3px 15px;
-    font-size: 13px;
-    background-color: rgba(241, 4, 4, 0.733);
-    border: 1px solid black;
-    border-radius: 15px;
-}
-
-.save-button {
-    padding: 5px 20px 5px 20px;
+  .edit-delete {
+    position: static;
     margin-top: 10px;
-    background-color: rgb(8, 201, 8);
-    border-radius: 5px;
-    border: 1px solid black;
-    font-size: 1rem;
-}
+  }
 
-
-@media (max-width:618px) {
-    .edit-delete {
-        position: relative;
-        margin-left: 25px;
-    }
-
-    .data-box {
-        font-size: 0.8rem;
-    }
+  .data-box {
+    font-size: 0.9rem;
+  }
 }

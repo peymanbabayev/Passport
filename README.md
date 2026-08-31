@@ -1,70 +1,62 @@
-# Getting Started with Create React App
+# Pasport reyestri
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Şəxs məlumatlarını (ad, soyad, ata adı, doğum tarixi, cins) qeydə almaq üçün
+React + Firebase Firestore tətbiqi.
 
-## Available Scripts
+## Texnologiyalar
 
-In the project directory, you can run:
+- React 18 (Create React App)
+- Firebase Firestore (`firebase` v9 modular SDK)
+- Bulma (CSS)
+- Jest + Testing Library
 
-### `npm start`
+## Quraşdırma
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```bash
+npm install
+cp .env.example .env   # və dəyərləri doldurun
+npm start
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+`.env` faylı Firebase Console-dakı **Project settings → General → Your apps →
+SDK setup and configuration** məlumatları ilə doldurulmalıdır. Fayl `.gitignore`-dadır.
 
-### `npm test`
+> `.env` yalnız dev server başlayanda oxunur — dəyişiklikdən sonra `npm start`-ı
+> yenidən işə salın.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Skriptlər
 
-### `npm run build`
+| Əmr | Təsvir |
+| --- | --- |
+| `npm start` | Dev server (http://localhost:3000) |
+| `npm test` | Testləri watch rejimində işə salır |
+| `npm run build` | `build/` qovluğuna production build |
+| `npm run lint` | ESLint yoxlaması |
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Struktur
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```
+src/
+  api/persons.js         Firestore CRUD əməliyyatları
+  hooks/usePersons.js     Məlumat yükləmə + mutasiya hook-u
+  lib/firebase.js         Firebase inisializasiyası (.env-dən)
+  constants/person.js     Person modeli, sahələr, cins seçimləri
+  utils/filterPersons.js  Axtarış süzgəci (+ test)
+  components/
+    PassportForm.js       Yaratma/redaktə üçün ortaq form (validasiya ilə)
+    PassportCreator.js    Yeni pasport bloku
+    PassportSearch.js     Axtarış sahəsi
+    PassportList.js       Siyahı + loading/error/boş vəziyyətlər
+    PassportShow.js       Bir kart: göstər / redaktə et / sil
+  App.js                  Kompozisiya + axtarış state-i
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Firestore təhlükəsizliyi
 
-### `npm run eject`
+`firestore.rules` faylında əsas sxem validasiyası var, amma kolleksiya hələ
+**publik**dir. İstehsaldan əvvəl Firebase Authentication əlavə edin və qaydaları
+`request.auth != null` ilə məhdudlaşdırın. Qaydaları deploy etmək üçün:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```bash
+firebase deploy --only firestore:rules
+```

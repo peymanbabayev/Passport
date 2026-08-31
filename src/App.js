@@ -1,63 +1,32 @@
-import { useState } from "react";
-import PassportCreator from "./components/PassportCreator";
-import PassportList from "./components/PassportList"
-import PassportSearch from "./components/PassportSearch";
+import { useMemo, useState } from 'react';
+
+import PassportCreator from './components/PassportCreator';
+import PassportSearch from './components/PassportSearch';
+import PassportList from './components/PassportList';
+import { usePersons } from './hooks/usePersons';
+import { filterPersons } from './utils/filterPersons';
 
 function App() {
-  const [personinfo, setPersoninfo] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const { persons, loading, error, addPerson, editPerson, removePerson } = usePersons();
+  const [query, setQuery] = useState('');
 
-  const editPersonById = (id, newName, newSurname, newFathername, newBirthdate, newCins) => {
-    const updatedInfo = personinfo.map((person) => {
-      if (person.id === id) {
-        return { ...person, name: newName, surname: newSurname, fathername: newFathername, birthdate: newBirthdate, cins: newCins };
-      }
-      return person;
-    });
-    setPersoninfo(updatedInfo);
-  }
-
-  const deletePerson = (id) => {
-    const updatedInfo = personinfo.filter((person) => {
-      return person.id !== id;
-    });
-    setPersoninfo(updatedInfo)
-  }
-
-  const createInfo = (name, surname, fathername, birthdate, cins) => {
-    const updatedInfo = [
-      ...personinfo,
-      {
-        id: Math.random() * 9999,
-        name,
-        surname,
-        fathername,
-        birthdate,
-        cins
-      }
-    ];
-    setPersoninfo(updatedInfo);
-  }
-
-  const renderPersons = () => {
-    if (searchTerm === "") {
-      return personinfo;
-    }
-
-    const searchedPersons = personinfo.filter((item) => {
-      return item.name.toLowerCase().includes(searchTerm.toLowerCase());
-  })
-    return searchedPersons;
-  }
+  const visiblePersons = useMemo(() => filterPersons(persons, query), [persons, query]);
 
   return (
-    <div className="container is-fluid">
-      <PassportCreator onCreate={createInfo} />
-      <PassportSearch  searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-      <PassportList onEdit={editPersonById} personinfo={renderPersons()} onDelete={deletePerson} />
-    </div>
+    <main className="container is-fluid app">
+      <h1 className="title is-2">Pasport reyestri</h1>
+
+      <PassportCreator onCreate={addPerson} />
+      <PassportSearch value={query} onChange={setQuery} />
+      <PassportList
+        persons={visiblePersons}
+        loading={loading}
+        error={error}
+        onEdit={editPerson}
+        onDelete={removePerson}
+      />
+    </main>
   );
 }
 
 export default App;
-

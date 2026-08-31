@@ -1,0 +1,23 @@
+rules_version = '2';
+
+// DIQQƏT: Bu tətbiqdə hələ Firebase Authentication yoxdur, ona görə də `persons`
+// kolleksiyası publik olaraq oxuna bilir. İstehsal mühitindən əvvəl mütləq
+// Auth əlavə edin və qaydaları `request.auth != null` şərti ilə məhdudlaşdırın.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /persons/{personId} {
+      allow read: if true;
+      allow create, update: if isValidPerson(request.resource.data);
+      allow delete: if true;
+    }
+
+    function isValidPerson(data) {
+      return data.keys().hasOnly(['name', 'surname', 'fathername', 'birthdate', 'gender', 'createdAt'])
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.surname is string && data.surname.size() > 0 && data.surname.size() <= 100
+        && data.fathername is string && data.fathername.size() <= 100
+        && data.birthdate is string
+        && data.gender in ['kişi', 'qadın'];
+    }
+  }
+}
