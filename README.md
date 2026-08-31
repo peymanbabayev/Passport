@@ -10,20 +10,6 @@ React + Firebase Firestore tətbiqi.
 - Bulma (CSS)
 - Jest + Testing Library
 
-## Quraşdırma
-
-```bash
-npm install
-cp .env.example .env   # və dəyərləri doldurun
-npm start
-```
-
-`.env` faylı Firebase Console-dakı **Project settings → General → Your apps →
-SDK setup and configuration** məlumatları ilə doldurulmalıdır. Fayl `.gitignore`-dadır.
-
-> `.env` yalnız dev server başlayanda oxunur — dəyişiklikdən sonra `npm start`-ı
-> yenidən işə salın.
-
 ## Skriptlər
 
 | Əmr | Təsvir |
@@ -49,14 +35,3 @@ src/
     PassportList.js       Siyahı + loading/error/boş vəziyyətlər
     PassportShow.js       Bir kart: göstər / redaktə et / sil
   App.js                  Kompozisiya + axtarış state-i
-```
-
-## Firestore təhlükəsizliyi
-
-`firestore.rules` faylında əsas sxem validasiyası var, amma kolleksiya hələ
-**publik**dir. İstehsaldan əvvəl Firebase Authentication əlavə edin və qaydaları
-`request.auth != null` ilə məhdudlaşdırın. Qaydaları deploy etmək üçün:
-
-```bash
-firebase deploy --only firestore:rules
-```
