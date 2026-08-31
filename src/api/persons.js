@@ -4,6 +4,7 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  onSnapshot,
   serverTimestamp,
   updateDoc,
 } from 'firebase/firestore';
@@ -23,10 +24,32 @@ function toPayload(data) {
   }, {});
 }
 
-function sortByNewest(a, b) {
-  const toMillis = (value) => (value && typeof value.toMillis === 'function' ? value.toMillis() : 0);
-  return toMillis(b.createdAt) - toMillis(a.createdAt);
+function getMillis(value) {
+  if (!value) return 0;
+  if (typeof value.toMillis === 'function') return value.toMillis();
+  if (typeof value === 'number') return value;
+  if (value instanceof Date) return value.getTime();
+  return 0;
 }
+
+function sortByNewest(a, b) {
+  // Əgər sənəd yenicə əlavə edilibsə və createdAt hələ serverdən gəlməyibsə, onu ən yeni (MAX_SAFE_INTEGER) kimi ən yuxarıda saxlayırıq
+  const aTime = a.createdAt ? getMillis(a.createdAt) : Number.MAX_SAFE_INTEGER;
+  const bTime = b.createdAt ? getMillis(b.createdAt) : Number.MAX_SAFE_INTEGER;
+  return bTime - aTime;
+}
+
+/** Firestore sənədini təhlükəsiz parse edir və `id` sahəsini həmişə Firestore doc id-si edir */
+function parseDoc(snap) {
+  const data = snap.data() || {};
+  const isPending = snap.metadata && snap.metadata.hasPendingWrites;
+  return {
+    ...data,
+    id: snap.id,
+    createdAt: data.createdAt || (isPending ? new Date() : null),
+  };
+}
+
 
 /**
  * @returns {Promise<import('../constants/person').Person[]>}
@@ -34,8 +57,26 @@ function sortByNewest(a, b) {
 export async function listPersons() {
   const snapshot = await getDocs(personsCollection);
   return snapshot.docs
-    .map((snap) => ({ id: snap.id, ...snap.data() }))
+    .map(parseDoc)
     .sort(sortByNewest);
+}
+
+/**
+ * Real-time (canlı) dinləyici. Hər dəyişiklikdə dərhal işə düşür və 0ms gecikmə ilə UI-ı yeniləyir.
+ */
+export function subscribePersons(onNext, onError) {
+  return onSnapshot(
+    personsCollection,
+    (snapshot) => {
+      const list = snapshot.docs
+        .map(parseDoc)
+        .sort(sortByNewest);
+      onNext(list);
+    },
+    (err) => {
+      if (onError) onError(err);
+    },
+  );
 }
 
 /**
@@ -50,9 +91,12 @@ export async function createPerson(data) {
 }
 
 export async function updatePerson(id, data) {
-  await updateDoc(doc(db, COLLECTION, id), toPayload(data));
+  if (!id) throw new Error('Yeniləmək üçün sənəd ID-si tapılmadı');
+  await updateDoc(doc(db, COLLECTION, String(id)), toPayload(data));
 }
 
 export async function deletePerson(id) {
-  await deleteDoc(doc(db, COLLECTION, id));
+  if (!id) throw new Error('Silmək üçün sənəd ID-si tapılmadı');
+  await deleteDoc(doc(db, COLLECTION, String(id)));
 }
+

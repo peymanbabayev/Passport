@@ -3,53 +3,64 @@ import { useCallback, useEffect, useState } from 'react';
 import * as personsApi from '../api/persons';
 
 /**
- * `persons` kolleksiyası üçün məlumatların yüklənməsi və CRUD əməliyyatlarını
- * idarə edən hook. Hər mutasiyadan sonra siyahını yenidən yükləyir.
+ * `persons` kolleksiyası üçün real-time və optimistik CRUD hook.
+ * Səhifədə reload/flicker yaratmır və tam sürətli (0ms UI gecikməsi) işləyir.
  */
 export function usePersons() {
   const [persons, setPersons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const refresh = useCallback(async () => {
+  useEffect(() => {
     setLoading(true);
-    setError(null);
+    const unsubscribe = personsApi.subscribePersons(
+      (data) => {
+        setPersons(data);
+        setLoading(false);
+        setError(null);
+      },
+      (err) => {
+        console.error('Firestore bağlantı xətası:', err);
+        setError(err);
+        setLoading(false);
+      },
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  const addPerson = useCallback(async (data) => {
+    return await personsApi.createPerson(data);
+  }, []);
+
+  const editPerson = useCallback(async (id, data) => {
+    // Optimistik lokal yeniləmə - dərhal görünür
+    setPersons((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...data } : item)),
+    );
     try {
-      setPersons(await personsApi.listPersons());
+      await personsApi.updatePerson(id, data);
     } catch (err) {
-      setError(err);
-    } finally {
-      setLoading(false);
+      console.error('Redaktə xətası:', err);
+      const fresh = await personsApi.listPersons();
+      setPersons(fresh);
+      throw err;
     }
   }, []);
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  const addPerson = useCallback(
-    async (data) => {
-      await personsApi.createPerson(data);
-      await refresh();
-    },
-    [refresh],
-  );
-
-  const editPerson = useCallback(
-    async (id, data) => {
-      await personsApi.updatePerson(id, data);
-      await refresh();
-    },
-    [refresh],
-  );
-
-  const removePerson = useCallback(
-    async (id) => {
+  const removePerson = useCallback(async (id) => {
+    // Optimistik lokal silmə - dərhal siyahıdan çıxarılır (0 gecikmə)
+    setPersons((prev) => prev.filter((item) => item.id !== id));
+    try {
       await personsApi.deletePerson(id);
-      await refresh();
-    },
-    [refresh],
-  );
+    } catch (err) {
+      console.error('Silinmə xətası:', err);
+      const fresh = await personsApi.listPersons();
+      setPersons(fresh);
+      throw err;
+    }
+  }, []);
 
-  return { persons, loading, error, refresh, addPerson, editPerson, removePerson };
+  return { persons, loading, error, addPerson, editPerson, removePerson };
 }
+
